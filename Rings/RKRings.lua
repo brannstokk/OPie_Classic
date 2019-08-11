@@ -3,7 +3,7 @@ local L, R = T.L, OneRingLib and OneRingLib.ext and OneRingLib.ext.RingKeeper
 if not (R and R.SetRing) then return end
 
 R:SetRing("DruidShift", {
-	{id="/cancelform [noflyable,noform:moonkin]\n/cast [flyable,outdoors,nocombat,noswimming,nomod][flying] {{spell:783}}; [outpost:corral,nomod,nospec:103/104] {{spell:161691}}; [swimming,nomod][flyable,nomod][flying] {{spell:783}}; [nocombat,outdoors,nomod:alt] {{mount:ground}}; [outdoors] {{spell:783}}", show="[known:783]", _u="f"}, -- Travel
+	{id="/cancelform [noform:moonkin]\n/cast [outdoors,nocombat,noswimming,nomod] {{spell:783}}; [outpost:corral,nomod,nospec:103/104] {{spell:161691}}; [swimming,nomod][nomod] {{spell:783}}; [nocombat,outdoors,nomod:alt] {{mount:ground}}; [outdoors] {{spell:783}}", show="[known:783]", _u="f"}, -- Travel
 	{c="c74cff", id=24858, _u="k"}, -- Moonkin
 	{c="fff04d", id=768, _u="c"}, -- Cat
 	{c="ff0000", id=5487, _u="b"}, -- Bear
@@ -44,7 +44,6 @@ do -- Hunter Pets
 end
 R:SetRing("HunterAspects", {
 	{id=186257, _u="c"}, -- cheetah
-	{id=186265, _u="t"}, -- turtle
 	{id=781, _u="d"}, -- disengage
 	{id=5384, _u="g"}, -- feign
 	{"ring", "HunterPets", onlyNonEmpty=true, _u="e", show="[nospec:2][notalent:15.1]"},
@@ -64,7 +63,6 @@ R:SetRing("MageCombat", {
 	{id=55342, _u="m"}, -- mirror image
 	{id=12051, _u="e"}, -- evocation
 	{id=12042, _u="a"}, -- arcane power
-	{id=108839, _u="f"}, -- ice floes
 	{id=80353, _u="t"}, -- time warp
 	{id=11426, _u="i"}, -- ice barrier
 	{id=190319, _u="c"}, -- combustion
@@ -79,46 +77,26 @@ R:SetRing("MageTools", {
 	name=L"Utility", limit="MAGE", hotkey="SECONDARY", _u="OPCMT"
 })
 R:SetRing("MagePolymorph", {
-	{id=118, _u="s"}, -- sheep
-	{id=161353, _u="p"}, -- polar bear
-	{id=61721, _u="r"}, -- rabbit
-	{id=61305, _u="b"}, -- black cat
-	{id=61780, _u="t"}, -- turkey
+  {id=118, _u="s"}, -- sheep
+  {id=12824, _u="s"}, -- sheep r2
+  {id=12825, _u="s"}, -- sheep r3
+  {id=12826, _u="s"}, -- sheep r4
 	{id=28271, _u="u"}, -- turtle
 	{id=28272, _u="i"}, -- pig
-	{id=161354, _u="m"}, -- monkey
-	{id=161355, _u="e"}, -- penguin
-	{id=126819, _u="o"}, -- porcupine
-	{id=161372, _u="k"}, -- peacock
+	{id=28270, _u="m"}, -- cow
+
 	name=L"Polymorphs", limit="MAGE", _u="OPCMP", internal=true
 })
 do -- MageTravel
 	local m = "/cast [mod] {{spell:%s}}; {{spell:%s}}"
 	R:SetRing("MageTravel", {
-		{id=m:format(268969, 281403), _u="8t"}, -- Boralus
-		{id=m:format(281402, 281404), _u="8z"}, -- Dazar'alor
-		{id=m:format(224871, 224869), _u="b"}, -- Dalaran Broken Isles
-		{id=m:format("132620/132626", "132621/132627"), _u="v"}, -- Vale of Eternal Blossoms
-		{id=m:format(53142, 53140), _u="r"}, -- Dalaran Northrend
-		{id=m:format("35717/33691", 33690), _u="s"}, -- Shattrath
 		{id=m:format(10059, 3561), _u="w"}, -- Stormwind
 		{id=m:format(11419, 3565), _u="d"}, -- Darnassus
 		{id=m:format(11420, 3566), _u="t"}, -- Thunder Bluff
 		{id=m:format(11418, 3563), _u="u"}, -- Undercity
 		{id=m:format(11416, 3562), _u="i"}, -- Ironforge
 		{id=m:format(11417, 3567), _u="o"}, -- Orgrimmar
-		{"ring", "ExtraPortals", onlyNonEmpty=true, _u="e"}, -- Extra Portals
-		{id=m:format(32267, 32272), _u="l"}, -- Silvermoon
-		{id=m:format(32266, 32271), _u="x"}, -- Exodar
 	  name=L"Portals and Teleports", hotkey="ALT-G", limit="MAGE", _u="OPCMP"
-	})
-	R:SetRing("ExtraPortals", {
-		{id=m:format(120146, 120145), _u="a"}, -- Ancient Dalaran
-		{id=m:format(49360, 49359), _u="m"}, -- Theramore
-		{id=m:format(49361, 49358), _u="n"}, -- Stonard
-		{id=m:format("88346/88345", "88344/88342"), _u="b", c="99C5CC"}, -- Tol Barad
-		{id=m:format("176246/176244", "176248/176242"), _u="h", c="ff4000"}, -- Ashran
-		name=L"Extra Portals", limit="MAGE", _u="OPCME", internal=true
 	})
 end
 
@@ -191,18 +169,6 @@ R:SetRing("CommonTrades", {
 	{id=2656, _u="m"}, -- smelting
 	name=L"Trade Skills", hotkey="ALT-T", _u="OPCCT"
 })
-R:SetRing("WorldMarkers", {
-	{"worldmark", 1, _u="b"},
-	{"worldmark", 2, _u="g"},
-	{"worldmark", 3, _u="p"},
-	{"worldmark", 4, _u="r"},
-	{"worldmark", 5, _u="y"},
-	{"worldmark", 6, _u="o"},
-	{"worldmark", 7, _u="s"},
-	{"worldmark", 8, _u="w"},
-	{"worldmark", 0, c="ccd8e5", _u="c"}, -- clear
-	name=L"World Markers", hotkey="[group] ALT-Y", _u="OPCWM"
-})
 R:SetRing("RaidSymbols", {
 	{"raidmark", 1, _u="y"}, -- yellow star
 	{"raidmark", 2, _u="o"}, -- orange circle
@@ -214,20 +180,4 @@ R:SetRing("RaidSymbols", {
 	{"raidmark", 8, _u="w"}, -- white skull
 	{"raidmark", 0, _u="c"}, -- clear all
 	name=L"Target Markers", hotkey="ALT-R", _u="OPCRS"
-})
-
-R:SetRing("CommonHearth", {
-	{"item", 6948, _u="h"},
-	{"toy", 64488, _u="i"},
-	{"toy", 54452, _u="e"},
-	{"toy", 93672, _u="d"},
-	{"toy", 142542, _u="t"},
-	{"toy", 165669, _u="u"},
-	{"toy", 165670, _u="v"},
-	{"toy", 165802, _u="g"},
-	{"toy", 166746, _u="f"},
-	{"toy", 166747, _u="b"},
-	{"toy", 163045, _u="l"},
-	{"toy", 162973, _u="w"},
-	name=L"Hearthstones", internal=true, _u="OPCHS"
 })

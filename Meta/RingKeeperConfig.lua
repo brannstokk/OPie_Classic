@@ -1,6 +1,6 @@
 local api, L, RK, conf, ORI, _, T = {}, OneRingLib.lang, OneRingLib.ext.RingKeeper, OneRingLib.ext.config, OneRingLib.ext.OPieUI, ...
 local AB = assert(T.ActionBook:compatible(2,23), "A compatible version of ActionBook is required")
-local gfxBase, EV = [[Interface\AddOns\OPie\gfx\]], T.Evie
+local gfxBase, EV = [[Interface\AddOns\OPie_Classic\gfx\]], T.Evie
 
 local FULLNAME, SHORTNAME do
 	function EV.PLAYER_LOGIN()

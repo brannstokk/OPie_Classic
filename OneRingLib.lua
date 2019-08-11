@@ -20,7 +20,7 @@ local AB, KR = T.ActionBook:compatible(2,14), T.ActionBook:compatible("Kindred",
 		return ringInfo and ringInfo.action or nil
 	end
 	local function describeRingAction(name)
-		return L"OPie Ring", OR_Rings[name] and OR_Rings[name].name or name, [[Interface\AddOns\OPie\gfx\opie_ring_icon]], nil, nil, nil, "collection"
+		return L"OPie Ring", OR_Rings[name] and OR_Rings[name].name or name, [[Interface\AddOns\OPie_Classic\gfx\opie_ring_icon]], nil, nil, nil, "collection"
 	end
 	AB:RegisterActionType("ring", createRingAction, describeRingAction)
 	AB:AugmentCategory(L"OPie rings", function(_, add)
