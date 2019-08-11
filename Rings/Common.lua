@@ -1,12 +1,6 @@
 local AB, _, T = assert(OneRingLib.ext.ActionBook:compatible(2,14), "Requires a compatible version of ActionBook"), ...
 local ORI, EV, L = OneRingLib.ext.OPieUI, T.Evie, T.L
 
-function VDTDump(obj, str)
-  if (ViragDevTool_AddData ~= nil) then
-    ViragDevTool_AddData(obj, str)
-  end
-end
-
 local function generateColor(c, n)
 	local hue, v, s = (15+(c-1)*360/n) % 360, 1, 0.85
 	local h, f = math.floor(hue/60) % 6, (hue/60) % 1

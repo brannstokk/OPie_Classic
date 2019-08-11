@@ -2,12 +2,6 @@ local apiV, AB, MAJ, REV, ext, T = {}, {}, 2, 23, ...
 if T.ActionBook then return end
 apiV[MAJ], ext, T.Kindred, T.Rewire = AB, {Kindred=T.Kindred, Rewire=T.Rewire, ActionBook={}}
 
-function AB:Dump(str, obj)
-  if ViragDevTool_AddData then
-    ViragDevTool_AddData(obj, str)
-  end
-end
-
 local function assert(condition, err, ...)
   return (not condition) and error(tostring(err):format(...), 3) or condition
 end
@@ -386,8 +380,6 @@ function AB:GetActionSlot(actionType, ...)
 	assert(ident, 'Syntax: actionId = ActionBook:GetActionSlot(actionTable or "actionType", ...)')
 end
 function AB:GetActionDescription(actionType, ...)
-  AB:Dump('actionType', actionType)
-
 	local ident, at = getActionIdent(actionType)
 	if actionDescribers[ident] then
 		return actionDescribers[ident](getActionArgs(at, ...))

@@ -6,12 +6,6 @@ local KR = assert(AB:compatible("Kindred",1,14), "A compatible version of Kindre
 local L, EV = AB:locale(), assert(T.Evie)
 local spellFeedback, itemHint, mountHint, mountMap
 
-function VDTDump(obj, str)
-  if (ViragDevTool_AddData ~= nil) then
-    ViragDevTool_AddData(obj, str)
-  end
-end
-
 local NormalizeInRange = {[0]=0, 1, [true]=1, [false]=0}
 local _, CLASS = UnitClass("player")
 
@@ -198,7 +192,6 @@ do -- spell: spell ID + mount spell ID
 	AB:RegisterActionType("spell", createSpell, describeSpell)
 	do -- specials
     local gab = GetSpellInfo(161691)
-    VDTDump(gab, 'gab')
 		-- actionMap[gab] = AB:CreateActionSlot(spellHint, gab, "conditional", "[outpost]", "attribute", "type","spell", "spell",gab)
 		-- spellMap[gab], spellMap[gab:lower()] = 161691, 161691
 		-- actionMap[150544] = AB:GetActionSlot("mount", 0)
