@@ -36,7 +36,7 @@ do -- OPieTracker
 	end})
 	local function preClick(selfId, _, updatedId)
 		if selfId ~= updatedId then return end
-		local n = GetNumTrackingTypes()
+		local n = 1
 		if n ~= #collectionData then
 			for i=1,n do
 				local token = "OPieBundleTracker" .. i

@@ -6,6 +6,12 @@ local KR = assert(AB:compatible("Kindred",1,14), "A compatible version of Kindre
 local L, EV = AB:locale(), assert(T.Evie)
 local spellFeedback, itemHint, mountHint, mountMap
 
+function VDTDump(obj, str)
+  if (ViragDevTool_AddData ~= nil) then
+    ViragDevTool_AddData(obj, str)
+  end
+end
+
 local NormalizeInRange = {[0]=0, 1, [true]=1, [false]=0}
 local _, CLASS = UnitClass("player")
 
@@ -69,14 +75,17 @@ do -- mount: mount ID
 		-- end
 		-- mountMap[150544] = 0
 		-- if changed then AB:NotifyObservers("spell") end
-	end
+  end
+
 	function mountHint(id)
 		local usable = (not (InCombatLockdown() or IsIndoors())) and HasFullControl() and not UnitIsDeadOrGhost("player")
 		--local cname, sid, icon, active, usable2 = C_MountJournal.GetMountInfoByID(id)
 		local time, cdStart, cdLength = GetTime(), GetSpellCooldown(sid)
 		--return usable and cdStart == 0 and usable2, active and 1 or 0, icon, cname, 0, (cdStart or 0) > 0 and (cdStart+cdLength-time) or 0, cdLength, GameTooltip.SetMountBySpellID, sid
-	end
-	local actionMap = {}
+  end
+
+  local actionMap = {}
+
 	local function createMount(id)
 		if type(id) == "number" and not actionMap[id] then
 			local _, sid = C_MountJournal.GetMountInfoByID(id)
@@ -85,19 +94,30 @@ do -- mount: mount ID
 			end
 		end
 		return actionMap[id]
-	end
+  end
+
 	local function describeMount(id)
 		local name, sid, icon = C_MountJournal.GetMountInfoByID(id)
 		return L"Mount", name, icon, nil, GameTooltip.SetMountBySpellID, sid
 	end
 	AB:RegisterActionType("mount", createMount, describeMount)
 	do -- random
-		local rname, _, ricon = GetSpellInfo(150544)
-		actionMap[0] = AB:CreateActionSlot(function()
-			return HasFullControl() and not IsIndoors(), IsMounted() and 1 or 0, ricon, rname, 0, 0, 0, GameTooltip.SetMountBySpellID, 150544
-		end, nil, summonAction(0))
-		RW:SetCastEscapeAction(GetSpellInfo(150544), actionMap[0])
-		RW:SetCastEscapeAction("spell:150544", actionMap[0])
+		-- local rname, _, ricon = GetSpellInfo(150544)
+		-- actionMap[0] = AB:CreateActionSlot(
+    --   function()
+    --     return HasFullControl() and not IsIndoors(),
+    --     IsMounted() and 1 or 0, ricon,
+    --     rname,
+    --     0,
+    --     0,
+    --     0,
+    --     GameTooltip.SetMountBySpellID, 150544
+    --   end,
+    --   nil,
+    --   summonAction(0)
+    -- )
+		-- RW:SetCastEscapeAction(GetSpellInfo(150544), actionMap[0])
+		-- RW:SetCastEscapeAction("spell:150544", actionMap[0])
 	end
 	EV.PLAYER_ENTERING_WORLD = mountSync
 	mountMap = {}
@@ -125,7 +145,7 @@ do -- spell: spell ID + mount spell ID
 		local cdLeft = (cooldown or 0) > 0 and (enabled ~= 0) and (cooldown + cdLength - time) or 0
 		local count, charges, maxCharges, chargeStart, chargeDuration = GetSpellCount(n), GetSpellCharges(n)
 		local state = ((IsSelectedSpellBookItem(n) or IsCurrentSpell(n) or isCurrentForm(n)  or enabled == 0) and 1 or 0) +
-		              (IsSpellOverlayed(msid or 0) and 2 or 0) + (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0) +
+		              (0) + (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0) +
 		              (hasRange and 512 or 0) + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
 		usable = not not (usable and inRange and (cooldown or 0) == 0 or (enabled == 0))
 		if charges and maxCharges and charges < maxCharges and cdLeft == 0 then
@@ -177,10 +197,11 @@ do -- spell: spell ID + mount spell ID
 	end
 	AB:RegisterActionType("spell", createSpell, describeSpell)
 	do -- specials
-		local gab = GetSpellInfo(161691)
-		actionMap[gab] = AB:CreateActionSlot(spellHint, gab, "conditional", "[outpost]", "attribute", "type","spell", "spell",gab)
-		spellMap[gab], spellMap[gab:lower()] = 161691, 161691
-		actionMap[150544] = AB:GetActionSlot("mount", 0)
+    local gab = GetSpellInfo(161691)
+    VDTDump(gab, 'gab')
+		-- actionMap[gab] = AB:CreateActionSlot(spellHint, gab, "conditional", "[outpost]", "attribute", "type","spell", "spell",gab)
+		-- spellMap[gab], spellMap[gab:lower()] = 161691, 161691
+		-- actionMap[150544] = AB:GetActionSlot("mount", 0)
 	end
 	
 	function EV.SPELLS_CHANGED()
@@ -233,17 +254,15 @@ do -- item: items ID/inventory slot
 			name, link, _, _, _, _, _, _, _, icon = GetItemInfo(ident)
 		end
 		local iid, cdStart, cdLen, enabled, cdLeft = (link and tonumber(link:match("item:([x%x]+)"))) or itemIdMap[ident]
-		if iid and PlayerHasToy(iid) and GetItemCount(iid) == 0 then
-			return toyHint(iid, nil, target)
-		elseif iid then
+		if iid then
 			cdStart, cdLen, enabled = GetItemCooldown(iid)
 			local time = GetTime()
 			cdLeft = (cdStart or 0) > 0 and (enabled ~= 0) and (cdStart + cdLen - time)
 		end
 		local inRange, hasRange = NormalizeInRange[IsItemInRange(ident, target or "target")]
 		inRange, hasRange = inRange ~= 0, inRange ~= nil
-		if ibag and islot then
-			bag, slot = ibag, islot
+		if ibag and is   then
+			bag, slot =   g, islot
 		elseif iid then
 			bag, slot = GetItemLocation(iid, name, ident)
 		end
@@ -255,8 +274,24 @@ do -- item: items ID/inventory slot
 			tip, tipArg = GameTooltip.SetItemByID, iid
 		end
 		local nCharge = GetItemCount(ident, false, true) or 0
-		local usable = nCharge > 0 and (GetItemSpell(ident) == nil or IsUsableItem(ident))
-		local state = (IsCurrentItem(ident) and 1 or 0) + (inRange and 0 or 16) + (slot and IsEquippableItem(ident) and (bag and (purpose == "equip" and 128 or 0) or (slot and 256 or 0)) or 0) + (hasRange and 512 or 0) + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
+    local usable = nCharge > 0 and (GetItemSpell(ident) == nil or IsUsableItem(ident))
+    local state = nil
+		-- local state = (IsCurrcal rname, _, ricon = GetSpellInfo(150544)
+		-- actionMap[0] = AB:CreateActionSlot(
+    --   function()
+    --     return HasFullControl() and not IsIndoors(),
+    --     IsMounted() and 1 or 0, ricon,
+    --     rname,
+    --     0,
+    --     0,
+    --     0,
+    --     GameTooltip.SetMountBySpellID, 150544
+    --   end,
+    --   nil,
+    --   summonAction(0)
+    -- )
+		-- RW:SetCastEscapeAction(GetSpellInfo(150544), actionMap[0])
+		-- RW:SetCastEentItem(ident) and 1 or 0) + (inRange and 0 or 16) + (slot and IsEquippableItem(ident) and (bag and (purpose == "equip" and 128 or 0) or (slot and 256 or 0)) or 0) + (hasRange and 512 or 0) + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
 		return not not (usable and inRange and (cdLen or 0) == 0), state, icon or GetItemIcon(ident), name or ident, nCharge,
 			cdLeft or 0, cdLen or 0, tip, tipArg
 	end
@@ -316,10 +351,6 @@ do -- macrotext
 			return false
 		end
 		local iid = tonumber(clause:match("^%s*item:([x%x]+)"))
-		if iid and C_ToyBox.GetToyInfo(iid) then
-			-- Toys aren't matched by item:id syntax in UIBN
-			return false
-		end
 		return true
 	end
 	RW:SetCommandHint("/use", 100, function(_, _, clause, target, _, _, msg)
@@ -477,70 +508,6 @@ do -- macro: name
 	end
 	AB:RegisterActionType("macro", createNamedMacro, describeMacro, {"forceShow"})
 end
-do -- battlepet: pet ID
-	local petAction, special = {}, {}
-	local function tip(self, id)
-		local sid, cname, lvl, _, _, _, _, name, _, ptype, _, _, _, _, cb = C_PetJournal.GetPetInfoByPetID(id)
-		if not sid then return false end
-		local hp, mhp, ap, spd, rarity = C_PetJournal.GetPetStats(id)
-		local qc, nc, icof = ITEM_QUALITY_COLORS[rarity-1], HIGHLIGHT_FONT_COLOR, "|TInterface\\PetBattles\\PetBattle-StatIcons:0:0:0:0:32:32:%d:%d:%d:%d|t %s"
-		self:AddLine(cname or name, qc.r, qc.g, qc.b)
-		if cb then
-			self:AddLine(UNIT_TYPE_LEVEL_TEMPLATE:format(lvl, _G["BATTLE_PET_NAME_".. ptype]), nc.r, nc.g, nc.b)
-			self:AddLine(icof:format(0, 16, 0, 16, ap) .. "   " .. icof:format(0, 16, 16, 32, spd) .. "   " .. icof:format(16,32,16,32, hp < mhp and (hp .. "/" .. mhp) or hp), nc.r, nc.g, nc.b)
-		end
-	end
-	local function battlepetHint(pid)
-		local sid, cn, _, _, _, _, _, n, tex = C_PetJournal.GetPetInfoByPetID(pid)
-		local cooldown, duration, enabled = C_PetJournal.GetPetCooldownByGUID(pid)
-		local cdLeft = (cooldown or 0) > 0 and (enabled ~= 0) and (cooldown + duration - GetTime())
-		local active = C_PetJournal.GetSummonedPetGUID()
-		local state = (active and active:upper()) == pid and 1 or 0
-		return sid and not cdLeft and not C_PetJournal.PetIsRevoked(pid), state, tex, cn or n or "", 0, cdLeft or 0, duration or 0, tip, pid
-	end
-	do -- random favorite pet
-		local rname, _, ricon = GetSpellInfo(243819)
-		local function randFaveHint()
-			return HasFullControl(), C_PetJournal.GetSummonedPetGUID() and 1 or 0, ricon, rname, 0, 0, 0, GameTooltip.SetSpellByID, 243819
-		end
-		petAction.FAVE = AB:CreateActionSlot(randFaveHint, nil, "attribute", "type","macro", "macrotext",SLASH_RANDOMFAVORITEPET1)
-		RW:ImportSlashCmd("RANDOMFAVORITEPET", true, false, 20, function(_, _, clause, _target)
-			if clause then
-				return true, randFaveHint()
-			end
-		end)
-		RW:SetCastEscapeAction(GetSpellInfo(243819), petAction.FAVE)
-		RW:SetCastEscapeAction("spell:243819", petAction.FAVE)
-		function special.fave()
-			return L"Battle Pet", rname, ricon, nil, GameTooltip.SetSpellByID, 243819
-		end
-	end
-	local function createBattlePet(pid)
-		local ok, sid = pcall(C_PetJournal.GetPetInfoByPetID, pid)
-		if not (ok and sid) and not special[pid] then return end
-		pid = pid:upper()
-		if not petAction[pid] then
-			petAction[pid] = AB:CreateActionSlot(battlepetHint, pid, "func", C_PetJournal.SummonPetByGUID, pid)
-		end
-		return petAction[pid]
-	end
-	local function describeBattlePet(pid)
-		if special[pid] then return special[pid]() end
-		local ok, sid, cn, lvl, _, _, _, _, n, tex = pcall(C_PetJournal.GetPetInfoByPetID, pid)
-		if not (ok and sid) then return L"Battle Pet", "?" end
-		if (cn or n) and ((lvl or 0) > 1) then cn = "[" .. lvl .. "] " .. (cn or n) end
-		return L"Battle Pet", cn or n or ("#" .. tostring(pid)), tex, nil, tip, pid
-	end
-	AB:RegisterActionType("battlepet", createBattlePet, describeBattlePet)
-	RW:SetCommandHint(SLASH_SUMMON_BATTLE_PET1, 60, function(_, _, clause)
-		if clause and clause ~= "" then
-			local _, petID = C_PetJournal.FindPetIDByName(clause:trim())
-			if petID then
-				return true, battlepetHint(petID)
-			end
-		end
-	end)
-end
 do -- raidmark
 	local map = {}
 	local function CanChangeRaidMarkers(unit)
@@ -581,75 +548,6 @@ do -- raidmark
 			return true, removeHint()
 		elseif clause then
 			return true, raidmarkHint(clause, nil, target)
-		end
-	end)
-end
-do -- worldmarker
-	local map, icons = {}, {[0]="Interface/Icons/INV_Misc_PunchCards_White",
-		"Interface/Icons/INV_Misc_QirajiCrystal_04","Interface/Icons/INV_Misc_QirajiCrystal_03",
-		"Interface/Icons/INV_Misc_QirajiCrystal_05","Interface/Icons/INV_Misc_QirajiCrystal_02",
-		"Interface/Icons/INV_Misc_QirajiCrystal_01","Interface/Icons/INV_Elemental_Primal_Fire",
-		"Interface/Icons/INV_jewelcrafting_taladiterecrystal","Interface/Icons/INV_jewelcrafting_taladitecrystal"}
-	local function worldmarkHint(i)
-		return not not (IsInGroup() and (not IsInRaid() or UnitIsGroupLeader("player") or UnitIsGroupAssistant("player") or IsEveryoneAssistant())), i > 0 and IsRaidMarkerActive(i) and 1 or 0, icons[i], i == 0 and REMOVE_WORLD_MARKERS or _G["WORLD_MARKER" .. i], 0, 0, 0
-	end
-	for i=1, 8 do
-		map[i] = AB:CreateActionSlot(worldmarkHint, i, "attribute", "type","worldmarker", "action","toggle", "marker",i)
-	end
-	map[0] = AB:CreateActionSlot(worldmarkHint, 0, "attribute", "type","macro", "macrotext",SLASH_CLEAR_WORLD_MARKER1 .. " " .. ALL)
-	local function createWorldmark(id)
-		return map[id]
-	end
-	local function describeWorldmark(id)
-		return L"Raid World Marker", id == 0 and REMOVE_WORLD_MARKERS or _G["WORLD_MARKER" .. id], icons[id]
-	end
-	AB:RegisterActionType("worldmark", createWorldmark, describeWorldmark)
-	RW:SetCommandHint(SLASH_WORLD_MARKER1, 40, function(_, _, clause)
-		clause = tonumber(clause)
-		if clause and clause >= 1 and clause <= 8 then
-			return true, worldmarkHint(clause)
-		end
-	end)
-end
-do -- extrabutton
-	local slot = GetExtraBarIndex()*12 - 11
-	local function extrabuttonHint()
-		if not HasExtraActionBar() then
-			return false, 0, "Interface/Icons/temp", "", 0, 0, 0
-		end
-		local at, aid = GetActionInfo(slot)
-		local inRange, usable, nomana, hasRange = NormalizeInRange[IsActionInRange(slot)], IsUsableAction(slot)
-		inRange, hasRange = inRange ~= 0, inRange ~= nil
-		local cooldown, cdLength, enabled = GetActionCooldown(slot)
-		local cdLeft = (cooldown or 0) > 0 and (enabled ~= 0) and (cooldown + cdLength - GetTime()) or 0
-		local count, charges, maxCharges, chargeStart, chargeDuration = GetActionCount(slot), GetActionCharges(slot)
-		local state = ((IsCurrentAction(slot) or enabled == 0) and 1 or 0) +
-		              (at == "spell" and IsSpellOverlayed(aid) and 2 or 0) +
-		              (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0) + (hasRange and 512 or 0) + (usable and 0 or 1024)
-		if charges and maxCharges and charges < maxCharges and cdLeft == 0 then
-			local time = GetTime()
-			cdLeft, cdLength = chargeStart-time + chargeDuration, chargeDuration
-		end
-		usable = not not (usable and inRange and ((cooldown == nil or cooldown == 0) or (enabled == 0) or (charges > 0)))
-		return usable, state, GetActionTexture(slot), GetActionText(slot) or (at == "spell" and GetSpellInfo(aid)), count <= 1 and charges or count, cdLeft, cdLength, GameTooltip.SetAction, slot
-	end
-	local aid = AB:CreateActionSlot(extrabuttonHint, nil, "conditional", "[extrabar]", "attribute", "type","action", "action",slot)
-	local aid2 = AB:CreateActionSlot(extrabuttonHint, nil, "attribute", "type","action", "action",slot)
-	local function createExtraButton(id, forceShow)
-		return id == 1 and (forceShow and aid2 or aid) or nil
-	end
-	local function describeExtraButton(_id)
-		local name, tex = L"Extra Action Button", "Interface/Icons/Temp"
-		if HasExtraActionBar() then
-			local at, aid = GetActionInfo(slot)
-			name, tex = GetActionText(slot) or (at == "spell" and GetSpellInfo(aid)) or name, GetActionTexture(slot) or tex
-		end
-		return L"Extra Action Button", name, tex
-	end
-	AB:RegisterActionType("extrabutton", createExtraButton, describeExtraButton, {"forceShow"})
-	RW:SetClickHint("ExtraActionButton1", 95, function()
-		if HasExtraActionBar() then
-			return true, extrabuttonHint()
 		end
 	end)
 end
@@ -731,81 +629,4 @@ do -- petspell: spell ID
 			actionID["dismiss"] = AB:CreateActionSlot(petHint, "dismiss", "conditional", cnd, "func", PetDismiss)
 		end
 	end
-end
-do -- toybox: item ID
-	local map, lastUsability, uq, whinedAboutGIIR = {}, {}, {}
-	local IGNORE_TOY_USABILITY = {
-		[129149]=1, [129279]=1, [129367]=1, [130157]="[in:broken isles]", [130158]=1, [130170]=1,
-		[130191]=1, [130199]=1, [130232]=1, [131812]=1, [131814]=1, [140325]=1, [147708]=1,
-		[153039]=1, [119421]=1, [128462]="[alliance]", [128471]="[horde]", [95589]="[alliance]", [95590]="[horde]",
-		[89222]=1, [63141]="[alliance]", [64997]="[horde]", [66888]=1, [89869]=1, [90175]=1,
-		[103685]=1, [115468]="[horde]", [115472]="[alliance]", [119160]="[horde]", [119182]="[alliance]",
-		[122283]=1, [142531]=1, [142532]=1,
-		[85500]="[fish5]",
-	}
-	function toyHint(iid)
-		local _, name, icon = C_ToyBox.GetToyInfo(iid)
-		local cdStart, cdLength = GetItemCooldown(iid)
-		local ignUse, usable = IGNORE_TOY_USABILITY[iid]
-		if ignUse == nil then
-			usable = C_ToyBox.IsToyUsable(iid) ~= false
-		else
-			usable = ignUse == 1 or (not not KR:EvaluateCmdOptions(ignUse))
-		end
-		return name and cdStart == 0 and usable, 0, icon or GetItemIcon(iid), name, 0, (cdStart or 0) > 0 and (cdStart+cdLength-GetTime()) or 0, cdLength, GameTooltip.SetToyByItemID, iid
-	end
-	function EV:GET_ITEM_INFO_RECEIVED(iid)
-		if not uq[iid] then
-			return
-		end
-		local iu = C_ToyBox.IsToyUsable(iid)
-		if iu ~= nil then
-			lastUsability[iid], uq[iid] = iu, nil
-		elseif not whinedAboutGIIR then
-			whinedAboutGIIR = true
-			error("Curse your sudden but inevitable betrayal")
-		end
-	end
-	local function wrapCondition(cnd, ...)
-		if (cnd or 1) == 1 then
-			return ...
-		else
-			return "conditional", cnd, ...
-		end
-	end
-	local function createToy(id)
-		local mid, ignUse = map[id], IGNORE_TOY_USABILITY[id]
-		if not (mid or ignUse or type(id) == "number") or not PlayerHasToy(id) then
-			return
-		end
-		local isUsable = ignUse or C_ToyBox.IsToyUsable(id)
-		if isUsable == nil then
-			isUsable, uq[id] = lastUsability[id], 1
-			GetItemInfo(id)
-		elseif not ignUse then
-			lastUsability[id] = isUsable
-		end
-		if not isUsable then
-			mid = nil
-		elseif mid == nil then
-			mid = AB:CreateActionSlot(toyHint, id, wrapCondition(ignUse, "attribute", "type","toy", "toy",id))
-			map[id] = mid
-		end
-		return mid
-	end
-	local function describeToy(id)
-		if type(id) ~= "number" then return end
-		local _, name, tex = C_ToyBox.GetToyInfo(id)
-		return L"Toy", name, tex, nil, GameTooltip.SetToyByItemID, id
-	end
-	AB:RegisterActionType("toy", createToy, describeToy)
-	RW:SetCommandHint(SLASH_USE_TOY1, 60, function(_, _, clause, target)
-		if clause and clause ~= "" then
-			local _, link = GetItemInfo(clause)
-			local iid = link and tonumber(link:match("item:([x%x]+)"))
-			if iid then
-				return true, toyHint(iid, nil, target)
-			end
-		end
-	end)
 end
