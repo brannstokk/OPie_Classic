@@ -83,11 +83,6 @@ do -- AB/specset
 		return SPECIALIZATION, name or idx, ico or "Interface/Icons/Temp", nil, SetSpecializationTooltip, idx
 	end
 	AB:RegisterActionType("specset", createSpecSet, describeSpecSet)
-	AB:AugmentCategory("Miscellaneous", function(_, add)
-		for i=1,GetNumSpecializations() do
-			add("specset", i)
-		end
-	end)
 end
 do -- EditorUI
 	local bg = CreateFrame("Frame")
