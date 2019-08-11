@@ -71,7 +71,7 @@ do -- AB/specset
 		setName = setName ~= false and (setName or specName) or ""
 		local tk = idx .. "#" .. setName
 		local ret = slot[tk]
-		if specName and UnitLevel("player") >= 10 and GetNumSpecializations() >= idx and not ret then
+		if specName and UnitLevel("player") >= 10 and not ret then
 			ret = AB:GetActionSlot("macrotext", ("/cancelform [nospec:%d,form:travel,flyable,noflying,nocombat]\n/opiespecset %d {%s}\n%s [spec:%d] %s"):format(idx, idx, setName, SLASH_EQUIP_SET1, setName ~= "" and idx or 5, setName))
 			ret = AB:CreateActionSlot(hintSpecSet, tk, "clone", ret)
 			slot[tk] = ret

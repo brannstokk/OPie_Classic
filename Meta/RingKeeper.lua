@@ -183,17 +183,6 @@ local RK_ParseMacro, RK_QuantizeMacro do -- +RingKeeper:SetMountPreference(groun
 					spells[sname:lower()] = sid
 				end
 			end
-			for spec=1,GetNumSpecializations() do
-				for tier=1, MAX_TALENT_TIERS do
-					for column=1, 3 do
-						tip:SetTalent(GetTalentInfoBySpecialization(spec, tier, column))
-						local name, id = tip:GetSpell()
-						if id and type(name) == "string" then
-							spells[name:lower()] = id
-						end
-					end
-				end
-			end
 			for curSpec=0,1 do
 				for i=GetNumSpellTabs()+12,1,-1 do
 					local _, _, ofs, c, _, sid = GetSpellTabInfo(i)
@@ -362,7 +351,7 @@ local copy do
 	end
 end
 
-local sReg, sRegRev, sSign = {__index={nil, nil, "name", "hotkey", "offset", "noOpportunisticCA", "noPersistentCA", "internal", "limit", "id", "skipSpecs", "caption", "icon", "show"}}, {__index={}}, string.char(111,101,116,111,104,72,55)
+local sReg, sRegRev, sSign = {__index={nil, nil, "name", "hotkey", "offset", "noOpportunisticCA", "noPersistentCA", "internal", "limit", "id", "caption", "icon", "show"}}, {__index={}}, string.char(111,101,116,111,104,72,55)
 for k,v in pairs(sReg.__index) do sRegRev.__index[v] = k end
 
 local function pullOptions(e, a, ...)

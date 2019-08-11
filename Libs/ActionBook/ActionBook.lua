@@ -386,6 +386,8 @@ function AB:GetActionSlot(actionType, ...)
 	assert(ident, 'Syntax: actionId = ActionBook:GetActionSlot(actionTable or "actionType", ...)')
 end
 function AB:GetActionDescription(actionType, ...)
+  AB:Dump('actionType', actionType)
+
 	local ident, at = getActionIdent(actionType)
 	if actionDescribers[ident] then
 		return actionDescribers[ident](getActionArgs(at, ...))

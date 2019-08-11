@@ -481,15 +481,6 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 		end
 	end)
 	local oy = 37
-	sliceDetail.skipSpecs = CreateFrame("Frame", "RKC_SkipSpecDropdown", sliceDetail, "UIDropDownMenuTemplate") do
-		local s = sliceDetail.skipSpecs
-		s:SetPoint("TOPLEFT", 250, -oy)
-		UIDropDownMenu_SetWidth(s, 250)
-		oy = oy + 31
-		s.label = s:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-		s.label:SetPoint("TOPLEFT", sliceDetail, "TOPLEFT", 10, -47)
-		s.label:SetText(L"Show this slice for:")
-	end
 	sliceDetail.showConditional = conf.ui.lineInput(sliceDetail, true, 260) do
 		local c = sliceDetail.showConditional
 		c:SetPoint("TOPLEFT", 274, -oy)
@@ -994,8 +985,8 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 		slider.Down:SetEnabled(base < maxV*2)
 		for i=1,#actions do
 			local e, id = actions[i], i + base
-			if id <= #selectedCategory then
-				local stype, sname, sicon, extico, tipfunc, tiparg = AB:GetActionDescription(selectedCategory(id))
+      if id <= #selectedCategory then
+				local stype, sname, sicon, extico, tipfunc, tiparg, actionType = AB:GetActionDescription(selectedCategory(id))
 				pcall(setIcon, e.ico, sicon, extico)
 				e.tipFunc, e.tipFuncArg = tipfunc, tiparg
 				e.name:SetText(sname)
@@ -1222,47 +1213,6 @@ end
 function api.resolveSliceOffset(id)
 	return sliceBaseIndex + id
 end
-function sliceDetail.skipSpecs:toggle(id)
-	self = sliceDetail.skipSpecs
-	local v, c = self.val:gsub("/" .. id .. "/", "/")
-	if c == 0 then v = "/" .. id .. v end
-	self.val = v
-	api.setSliceProperty("skipSpecs")
-	self:text()
-end
-function sliceDetail.skipSpecs:SetValue(skip)
-	self.val = type(skip) == "string" and skip ~= "" and ("/" .. skip .. "/") or "/"
-	self:text()
-end
-function sliceDetail.skipSpecs:GetValue()
-	return self.val:match("^/(.+)/$")
-end
-function sliceDetail.skipSpecs:text()
-	local text, u, skipSpecs = "", GetNumSpecializations(), self.val
-	for i=1, u do
-		local id, name = GetSpecializationInfo(i)
-		if not skipSpecs:match("/" .. id .. "/") then
-			text, u = text .. (text == "" and "" or ", ") .. name, u - 1
-		end
-	end
-	if u == 0 then
-		text = (L"All %s specializations"):format("|cff" .. PLAYER_CLASS_COLOR_HEX .. PLAYER_CLASS .. "|r")
-	elseif text == "" then
-		text = (L"No %s specializations"):format("|cff" .. PLAYER_CLASS_COLOR_HEX .. PLAYER_CLASS .. "|r")
-	else
-		text = (L"Only %s"):format("|cff" .. PLAYER_CLASS_COLOR_HEX .. text .. "|r")
-	end
-	UIDropDownMenu_SetText(self, text)
-end
-function sliceDetail.skipSpecs:initialize()
-	local info = {func=self.toggle, isNotRadio=true, minWidth=self:GetWidth()-40, keepShownOnClick=true}
-	local skip = self.val or ""
-	for i=1, GetNumSpecializations() do
-		local id, name, _, icon = GetSpecializationInfo(i)
-		info.text, info.arg1, info.checked = "|T" .. icon .. ":16:16:0:0:64:64:4:60:4:60|t " .. name, id, not skip:match("/" .. id .. "/")
-		UIDropDownMenu_AddButton(info)
-	end
-end
 function ringDetail.scope:initialize()
 	local luFaction, lFaction = UnitFactionGroup("player")
 	local info = {func=self.set, minWidth=self:GetWidth()-40}
@@ -1346,10 +1296,9 @@ function api.setSliceProperty(prop, ...)
 			shallowCopyArrayAndKeys(edOutput, slice, AB:GetActionOptions(edOutput[1]))
 			api.updateSliceDisplay(currentSliceIndex, slice)
 		end
-	elseif prop == "skipSpecs" or prop == "show" then
-		local ss = sliceDetail.skipSpecs:GetValue()
+	elseif prop == "show" then
 		local sh = sliceDetail.showConditional:GetText()
-		slice.show = (ss or sh ~= "") and ((ss and ("[spec:" .. ss .. "] hide;") or "") .. sh) or nil
+		slice.show = (sh ~= "") and ((ss and ("[spec:" .. ss .. "] hide;") or "") .. sh) or nil
 	elseif prop == "rotationMode" then
 		if ... == "default" then
 			slice.embed, slice.rotationMode = nil, nil
@@ -1422,11 +1371,10 @@ function api.updateSliceDisplay(_id, desc)
 	else
 		sliceDetail.desc:SetText(stype or "?")
 	end
-	local skipSpecs, showConditional = (desc.show or ""):match("^%[spec:([%d/]+)%] hide;(.*)")
+	local showConditional = (desc.show or ""):match("^%[spec:([%d/]+)%] hide;(.*)")
 	sliceDetail.icon:HidePanel()
 	sliceDetail.icon:SetIcon(sicon, desc.icon, icoext, desc)
 	sliceDetail.color:SetColor(getSliceColor(desc, sicon))
-	sliceDetail.skipSpecs:SetValue(skipSpecs)
 	sliceDetail.showConditional:SetText(showConditional or desc.show or "")
 	sliceDetail.caption:SetText(desc.caption or "")
 	api.updateSliceOptions(desc)

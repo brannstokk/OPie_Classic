@@ -100,12 +100,9 @@ AB:AugmentCategory(L"Macros", function(_, add)
 	end
 end)
 AB:AugmentCategory(L"Raid markers", function(_, add)
-	for k=0,1 do
-		k = k == 0 and "raidmark"
-		for i=0,8 do
-			add(k, i)
-		end
-	end
+  for i=0,8 do
+    add("raidmark", i)
+  end
 end)
 do -- misc
 	AB:AddActionToCategory(L"Miscellaneous", "macrotext", "")
