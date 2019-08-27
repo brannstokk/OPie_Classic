@@ -48,28 +48,28 @@ local RK_ParseMacro, RK_QuantizeMacro do -- +RingKeeper:SetMountPreference(groun
 			return GetSpellInfo(sn, sr) ~= nil and sid or (RW:GetCastEscapeAction(sn) and sid)
 		end
 		local function findMount(prefSID, mtype)
-			local myFactionId, nc, cs = UnitFactionGroup("player") == "Horde" and 0 or 1, 0
-			local idm = C_MountJournal.GetMountIDs()
-			local gmi, gmiex = C_MountJournal.GetMountInfoByID, C_MountJournal.GetMountInfoExtraByID
-			for i=1, #idm do
-				i = idm[i]
-				local _1, sid, _3, _4, _5, _6, _7, factionLocked, factionId, hide, have = gmi(i)
-				if have and not hide
-				   and (not factionLocked or factionId == myFactionId)
-				   and RW:IsSpellCastable(sid)
-				   then
-					local _, _, _, _, t = gmiex(i)
-					if sid == prefSID then
-						return sid
-					elseif t == mtype and not skip[sid] then
-						nc = nc + 1
-						if math.random(1,nc) == 1 then
-							cs = sid
-						end
-					end
-				end
-			end
-			return cs
+			-- local myFactionId, nc, cs = UnitFactionGroup("player") == "Horde" and 0 or 1, 0
+			-- --local idm = C_MountJournal.GetMountIDs()
+			-- local gmi, gmiex = C_MountJournal.GetMountInfoByID, C_MountJournal.GetMountInfoExtraByID
+			-- for i=1, #idm do
+			-- 	i = idm[i]
+			-- 	local _1, sid, _3, _4, _5, _6, _7, factionLocked, factionId, hide, have = gmi(i)
+			-- 	if have and not hide
+			-- 	   and (not factionLocked or factionId == myFactionId)
+			-- 	   and RW:IsSpellCastable(sid)
+			-- 	   then
+			-- 		local _, _, _, _, t = gmiex(i)
+			-- 		if sid == prefSID then
+			-- 			return sid
+			-- 		elseif t == mtype and not skip[sid] then
+			-- 			nc = nc + 1
+			-- 			if math.random(1,nc) == 1 then
+			-- 				cs = sid
+			-- 			end
+			-- 		end
+			-- 	end
+			-- end
+			-- return cs
 		end
 		function replaceMountTag(ctype, tag, prefix)
 			if tag == "ground" then
