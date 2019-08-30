@@ -1100,9 +1100,9 @@ local typePrefix = {
 	ALLIANCE="|cff00a0ff|A:QuestPortraitIcon-Alliance-small:20:18:-2:0|a",
 }
 do
-	for k, v in pairs(CLASS_ICON_TCOORDS) do
-		typePrefix[k] = ("|cff%s|TInterface/GLUES/CHARACTERCREATE/UI-CharacterCreate-Classes:14:14:0:1:256:256:%d:%d:%d:%d|t "):format(RAID_CLASS_COLORS[k].colorStr:sub(3), v[1]*256+6,v[2]*256-6,v[3]*256+6,v[4]*256-6)
-	end
+	-- for k, v in pairs(CLASS_ICON_TCOORDS) do
+	-- 	typePrefix[k] = ("|cff%s|TInterface/GLUES/CHARACTERCREATE/UI-CharacterCreate-Classes:14:14:0:1:256:256:%d:%d:%d:%d|t "):format(RAID_CLASS_COLORS[k].colorStr:sub(3), v[1]*256+6,v[2]*256-6,v[3]*256+6,v[4]*256-6)
+	-- end
 end
 local function sortNames(a,b)
 	local oa, ob, na, nb, ta, tb = ringOrderMap[a] or 5, ringOrderMap[b] or 5, ringNameMap[a] or "", ringNameMap[b] or "", ringTypeMap[a] or "", ringTypeMap[b] or ""
