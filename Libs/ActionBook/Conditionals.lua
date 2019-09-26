@@ -92,16 +92,12 @@ do -- form:token
 	if playerClass == "DRUID" then
 		KR:SetAliasConditional("stance", "form")
 		local map, curCnd, pending = {
-			[GetSpellInfo(40120)]="/flight",
-			[GetSpellInfo(33943)]="/flight",
 			[GetSpellInfo(1066)]="/aquatic",
 			[GetSpellInfo(783)]="/travel",
 			[GetSpellInfo(24858)]="/moon/moonkin",
 			[GetSpellInfo(768)]="/cat",
 			[GetSpellInfo(171745) or 1]="/cat",
 			[GetSpellInfo(5487)]="/bear",
-			[GetSpellInfo(114282)]="/treant",
-			[GetSpellInfo(210053)]="/stag",
 		}, nil
 		local function syncForm()
 			local s = ""
