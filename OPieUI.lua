@@ -360,6 +360,10 @@ function iapi:Show(_, fcSlice, fastOpen, reFrame)
 		anchorFrame:SetPoint("CENTER", nil, "CENTER", configCache.IndicationOffsetX, -configCache.IndicationOffsetY)
 	end
 	mainFrame:Show()
+    _, _, _, MouselookHandlerEnabled = GetAddOnInfo("MouselookHandler")
+    if (MouselookHandlerEnabled) then
+       MouselookHandler.unlock()
+    end
 end
 function iapi:Hide()
 	mainFrame:SetScript("OnUpdate", OnUpdate_ZoomOut)
